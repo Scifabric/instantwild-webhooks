@@ -26,6 +26,10 @@ import json
 from base import Test
 from app import app
 from mock import patch
+try:
+    import settings
+except ImportError:
+    import settings_testing as settings
 
 
 class TestApp(Test):

@@ -22,7 +22,10 @@ This exports:
     - Test the app
 
 """
-import settings
+try:
+    import settings
+except ImportError:
+    import settings_testing as settings
 import json
 import enki
 from base import Test
@@ -409,13 +412,13 @@ class TestApp(Test):
         del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = 'https://instantwildadmin.zsl.org/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         user_url3 = settings.endpoint + '/api/user/%s?api_key=%s' % (3, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2),
-                                                call(user_url3)]
+                                                call(user_url3)], requests_mock.get.mock_calls
         enki_mock.pbclient.find_results.assert_called_with(project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
@@ -492,7 +495,7 @@ class TestApp(Test):
         del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = 'https://instantwildadmin.zsl.org/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -573,7 +576,7 @@ class TestApp(Test):
         del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = 'https://instantwildadmin.zsl.org/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -654,7 +657,7 @@ class TestApp(Test):
         del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = 'https://instantwildadmin.zsl.org/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -738,7 +741,7 @@ class TestApp(Test):
         del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = 'https://instantwildadmin.zsl.org/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -824,7 +827,7 @@ class TestApp(Test):
         del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = 'https://instantwildadmin.zsl.org/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),

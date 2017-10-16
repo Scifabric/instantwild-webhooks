@@ -20,7 +20,11 @@ from flask import Flask, render_template, request
 from analysis import basic
 from redis import Redis
 from rq import Queue
-import settings
+try:
+    import settings
+except ImportError:
+    import settings_testing as settings
+
 
 
 app = Flask(__name__)

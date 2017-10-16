@@ -18,7 +18,11 @@
 
 import enki
 import json
-import settings
+try:
+    import settings
+except ImportError:
+    import settings_testing as settings
+
 import requests
 import time
 import pandas as pd
