@@ -212,6 +212,29 @@ class TestApp(Test):
 
     @patch('enki.pbclient', autospec=True)
     @patch('enki.Enki', autospec=True)
+    def test_basic_10_nan_(self, enki_mock, pbclient):
+        """Test 10 non animal."""
+        enki_mock = enki.Enki(endpoint='server',
+                              api_key='api',
+                              project_short_name='project')
+        task = MagicMock()
+        task.id = 1
+        task.n_answers = 10
+        task.state = 'completed'
+        enki_mock.tasks = [task]
+        enki_mock.pbclient = pbclient
+        task_runs = []
+        for i in range(10):
+            task_runs.append(self.create_task_runs_no_animal())
+        enki_mock.task_runs = dict([(task.id,task_runs)])
+
+        res = basic(**self.payload)
+        assert task.n_answers == 10, task.n_answers
+        assert res == "10 taskruns reported no animal", res
+
+
+    @patch('enki.pbclient', autospec=True)
+    @patch('enki.Enki', autospec=True)
     def test_basic_10_nan_2_animal(self, enki_mock, pbclient):
         """Test 10 non animal 2 with animal."""
         enki_mock = enki.Enki(endpoint='server',

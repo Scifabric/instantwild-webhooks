@@ -135,6 +135,8 @@ def get_count_nan(df):
         # df = e.task_runs_df[t.id]
         analysis = dict(df['speciesID'].value_counts())
         # If everyone answered no animal
+    else:
+        vc = df['animalCount'].value_counts(dropna=False)
     return vc
 
 
@@ -162,7 +164,7 @@ def basic(**kwargs):
         e.get_task_runs()
         labels = ['task_run_id', 'speciesID', 'speciesScientificName',
                   'speciesCommonName', 'animalCount']
-        for t in e.tasks: 
+        for t in e.tasks:
             data = []
             for tr in e.task_runs[t.id]:
                 for datum in tr.info['answer']:
@@ -173,7 +175,8 @@ def basic(**kwargs):
             vc = get_count_nan(df)
             if len(e.task_runs[t.id]) == 5:
                 msg = "The five taskruns reported no animal"
-                if type(vc) == pd.Series and (str(vc.index[0]) == 'nan' and vc.values[0] == 5):
+                if type(vc) == pd.Series and ((str(vc.index[0]) == 'nan' or
+                                              vc.index[0] ==-1) and vc.values[0] == 5):
                     return msg
                 else:
                     t.n_answers += 1
@@ -181,7 +184,8 @@ def basic(**kwargs):
                     enki.pbclient.update_task(t)
                 return msg
             else:
-                if str(vc.index[0]) == 'nan' and vc.values[0] >= 10:
+                print vc.index[0]
+                if (str(vc.index[0]) == 'nan' or vc.index[0] == -1) and vc.values[0] >= 10:
                     msg = "10 taskruns reported no animal"
                     return msg
                 else:
