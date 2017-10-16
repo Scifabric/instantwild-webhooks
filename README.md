@@ -1,6 +1,6 @@
 [![Build
-Status](https://travis-ci.org/Scifabric/webhooks.svg)](https://travis-ci.org/Scifabric/webhooks)
-[![Coverage Status](https://img.shields.io/coveralls/PyBossa/webhooks.svg)](https://coveralls.io/r/PyBossa/webhooks?branch=master)
+Status](https://travis-ci.org/Scifabric/instantwild-webhooks.svg)](https://travis-ci.org/Scifabric/instantwild-webhooks)
+[![Coverage Status](https://img.shields.io/coveralls/Scifabric/instantwild-webhooks.svg)](https://coveralls.io/r/Scifabric/instantwild-webhooks?branch=master)
 ## Instant Wild data analysis
 
 This is the code that computes and gives badges to the PYBOSSA project [Instant Wild](https://instantwild.zsl.org).
