@@ -1,10 +1,15 @@
+sudo: false
+dist: trusty
+group: edge
 language: python
+group: edge
 python:
   - "2.7"
 services:
   - redis-server
 before_install:
   - pip install coveralls
+  - pip install nose-cov
   - cp settings_testing.py settings.py
 script: nosetests test
 after_success:
