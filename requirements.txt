@@ -1,0 +1,6 @@
+flask
+enki
+rq
+coverage
+nose
+rednose
