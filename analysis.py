@@ -162,7 +162,7 @@ def basic(**kwargs):
         e.get_task_runs()
         labels = ['task_run_id', 'speciesID', 'speciesScientificName',
                   'speciesCommonName', 'animalCount']
-        for t in e.tasks: # pragma: no cover
+        for t in e.tasks: 
             data = []
             for tr in e.task_runs[t.id]:
                 for datum in tr.info['answer']:
