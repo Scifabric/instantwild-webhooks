@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.7"
+services:
+  - redis-server
+before_install:
+  - pip install coveralls
+  - cp settings_testing.py settings.py
+script: nosetests test
+after_success:
+  - coveralls
