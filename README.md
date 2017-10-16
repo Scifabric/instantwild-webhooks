@@ -10,12 +10,15 @@ statistical analysis computed. By default each task is analyzed by 5 different p
 following schema is followed:
 
 1. If the 5 first answers say that there's no animal in the picture, the task is left as completed. Else,
+
   1 . We reset the state of the task to *ongoing* asking one extra person to contribute to the same picture
       until there are 10 contributions agreeing that there is an animal, and the animal is the same (i.e. an
       elephant) or if we got 25 answers with different solutions/options.
+
   2. If we have 10 people agreeing on a picture, the system gives "badges" and karma to users:
 
     1. If the user answered correctly, then, the karma is increased in one, else it's decreased by one (karma cannot be lower than zero).
+
     2. If the identified animal is an Endangered species, then, the iucn_red_list number is increased as well to reflect it.
 
 
