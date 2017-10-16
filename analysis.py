@@ -18,7 +18,7 @@
 
 import enki
 import json
-try:
+try: # pragma: no cover
     import settings
 except ImportError:
     import settings_testing as settings
