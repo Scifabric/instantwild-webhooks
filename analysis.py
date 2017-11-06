@@ -66,19 +66,16 @@ def give_badges(e, t, answers, result):
                                 number=1,
                                 result_id=result.id)
                     new_badges.append(badge)
-                if contributor.get('info').get('extra'):
-                    if contributor.get('info').get('extra').get('badges'):
-                        current_badges = contributor.get('info').get('extra').get('badges')
-                        if (len(filter(lambda b: b['result_id'] ==
-                                      result.id, current_badges)) == 0):
-                            contributor['info']['extra']['badges'].append(badge)
-                        else:
-                            print("Badge already in place")
+                if contributor.get('info').get('badges'):
+                    current_badges = contributor.get('info').get('badges')
+                    if (len(filter(lambda b: b['result_id'] ==
+                                  result.id, current_badges)) == 0):
+                        contributor['info']['badges'].append(badge)
                     else:
-                        contributor['info']['extra'] = dict(badges=[badge])
+                        print("Badge already in place")
                 else:
-                    contributor['info']['extra'] = dict(badges=[badge])
-                badges = contributor['info']['extra']['badges']
+                    contributor['info']['badges'] = [badge]
+                badges = contributor['info']['badges']
                 iucn_number = len(filter(lambda b: b['iucn_red_list_status'] in
                                      RARE_FINDS, badges))
                 species_number = len(filter(lambda b: b['iucn_red_list_status'] in
@@ -102,8 +99,8 @@ def give_badges(e, t, answers, result):
                         contributor['info']['karma'] = 0
                 else:
                     contributor['info']['karma'] = 0
-                if contributor['info'].get('extra') is None:
-                    contributor['info']['extra'] = dict(badges=[])
+                if contributor['info'].get('badges') is None:
+                    contributor['info']['badges'] = []
             # Update contributor
             contributor.pop('n_answers', None)
             contributor.pop('rank', None)

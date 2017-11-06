@@ -448,11 +448,11 @@ class TestApp(Test):
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=1,
-                                    extra=dict(badges=[dict(iucn_red_list_status='Endangered',
+                                    badges=[dict(iucn_red_list_status='Endangered',
                                                             result_id=1,
-                                                            number=1)])))
+                                                            number=1)]))
         user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
-                                  extra=dict(badges=[])))
+                                  badges=[]))
 
         calls = [call(user_url,
                       data=json.dumps(user_contrib_correct),
@@ -529,11 +529,11 @@ class TestApp(Test):
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
-                                    extra=dict(badges=[dict(iucn_red_list_status='Endangered',
+                                    badges=[dict(iucn_red_list_status='Endangered',
                                                             result_id=1,
-                                                            number=1)])))
+                                                            number=1)]))
         user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=1,
-                                  extra=dict(badges=[])))
+                                  badges=[]))
 
         calls = [call(user_url,
                       data=json.dumps(user_contrib_correct),
@@ -610,11 +610,11 @@ class TestApp(Test):
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
-                                    extra=dict(badges=[dict(iucn_red_list_status='Endangered',
+                                    badges=[dict(iucn_red_list_status='Endangered',
                                                             result_id=1,
-                                                            number=1)])))
+                                                            number=1)]))
         user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
-                                  extra=dict(badges=[])))
+                                  badges=[]))
 
         calls = [call(user_url,
                       data=json.dumps(user_contrib_correct),
@@ -632,7 +632,7 @@ class TestApp(Test):
                                        requests_mock):
         """Test 10 animal consensus test badges work."""
         info = [dict(info=dict(iucn_red_list_status='Endangered'))]
-        user_info = dict(info=dict(extra=dict(badges=[]), karma=2))
+        user_info = dict(info=dict(badges=[], karma=2))
         user_info_wrong = dict(info=dict(karma=-1))
         mock_response = self._mock_response(json_data=info, status=200)
         mock_response_2 = self._mock_response(json_data=user_info, status=200)
@@ -691,11 +691,11 @@ class TestApp(Test):
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
-                                    extra=dict(badges=[dict(iucn_red_list_status='Endangered',
+                                    badges=[dict(iucn_red_list_status='Endangered',
                                                             result_id=1,
-                                                            number=1)])))
+                                                            number=1)]))
         user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
-                                  extra=dict(badges=[])))
+                                  badges=[]))
 
         calls = [call(user_url,
                       data=json.dumps(user_contrib_correct),
@@ -716,7 +716,7 @@ class TestApp(Test):
                      result_id=1,
                      number=1)
         info = [dict(info=dict(iucn_red_list_status='Endangered'))]
-        user_info = dict(info=dict(extra=dict(badges=[badge]), karma=2))
+        user_info = dict(info=dict(badges=[badge], karma=2))
         user_info_wrong = dict(info=dict(karma=-1))
         mock_response = self._mock_response(json_data=info, status=200)
         mock_response_2 = self._mock_response(json_data=user_info, status=200)
@@ -775,9 +775,9 @@ class TestApp(Test):
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
-                                    extra=dict(badges=[badge])))
+                                    badges=[badge]))
         user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
-                                  extra=dict(badges=[])))
+                                  badges=[]))
 
         calls = [call(user_url,
                       data=json.dumps(user_contrib_correct),
@@ -802,7 +802,7 @@ class TestApp(Test):
                       number=2)
 
         info = [dict(info=dict(iucn_red_list_status='Endangered'))]
-        user_info = dict(info=dict(extra=dict(badges=[badge2]), karma=2))
+        user_info = dict(info=dict(badges=[badge2], karma=2))
         user_info_wrong = dict(info=dict(karma=-1))
         mock_response = self._mock_response(json_data=info, status=200)
         mock_response_2 = self._mock_response(json_data=user_info, status=200)
@@ -861,9 +861,96 @@ class TestApp(Test):
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=2, iucn_number=2, karma=3,
-                                    extra=dict(badges=[badge2, badge])))
+                                    badges=[badge2, badge]))
         user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
-                                  extra=dict(badges=[])))
+                                  badges=[]))
+
+        calls = [call(user_url,
+                      data=json.dumps(user_contrib_correct),
+                      headers={'content-type': 'application/json'}),
+                call(user_url2,
+                      data=json.dumps(user_contrib_wrong),
+                      headers={'content-type': 'application/json'})]
+
+        requests_mock.put.assert_has_calls(calls)
+
+    @patch('analysis.requests', autospec=True)
+    @patch('enki.pbclient', autospec=True)
+    @patch('enki.Enki', autospec=True)
+    def test_basic_10_animal_consensus_badges_two_badges_user_no_info(self, enki_mock, pbclient,
+                                       requests_mock):
+        """Test 10 animal consensus test badges two badges work for user with
+        no info field."""
+        badge = dict(iucn_red_list_status='Endangered',
+                     result_id=1,
+                     number=1)
+        badge2 = dict(iucn_red_list_status='Endangered',
+                      result_id=2,
+                      number=2)
+
+        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        user_info = dict(info=dict(badges=[badge2], karma=2))
+        user_info_wrong = dict(info=dict())
+        mock_response = self._mock_response(json_data=info, status=200)
+        mock_response_2 = self._mock_response(json_data=user_info, status=200)
+        mock_response_3 = self._mock_response(json_data=user_info_wrong, status=200)
+        requests_mock.get.side_effect = [mock_response, mock_response_2,
+                                         mock_response_3]
+
+        enki_mock = enki.Enki(endpoint='server',
+                              api_key='api',
+                              project_short_name='project')
+        enki_mock.pbclient = pbclient
+        result = MagicMock()
+        result.id = 1
+        result.info = dict()
+        enki_mock.pbclient.find_results.return_value = [result]
+        task = MagicMock()
+        task.id = 1
+        task.n_answers = 11
+        task.info = dict(image='url', deploymentID='deploymentID')
+        task.state = 'completed'
+        enki_mock.tasks = [task]
+        task_runs = []
+        for i in range(10):
+            if (i==1):
+                task_runs.append(self.create_task_runs_animal(user_id=1))
+            else:
+                task_runs.append(self.create_task_runs_animal(user_id=None, user_ip='127.0.0.%s'
+                                                              % i))
+        for i in range(1):
+            task_runs.append(self.create_task_runs_animal_wrong())
+
+        enki_mock.task_runs = dict([(task.id,task_runs)])
+
+        res = basic(**self.payload)
+        assert task.n_answers == 11, task.n_answers
+        assert task.state == 'completed', task.state
+
+        answer = self.create_task_runs_animal().info['answer'][0]
+        answer['animalCountStd'] = 0.0
+        answer['animalCountMin'] = 1.0
+        answer['animalCountMax'] = 1.0
+        answer['iucn_red_list_status'] = 'Endangered'
+        answer['deploymentID'] = 'deploymentID'
+        answer['imageURL'] = 'url'
+        del answer['speciesCommonName']
+        del answer['speciesID']
+
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
+        user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
+        assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
+                                                call(user_url2)]
+        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+                                                           id=1)
+        enki_mock.pbclient.update_result.assert_called_with(result)
+        assert result.info == answer, (result.info, answer)
+
+        user_contrib_correct = dict(info=dict(species_number=2, iucn_number=2, karma=3,
+                                    badges=[badge2, badge]))
+        user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
+                                  badges=[]))
 
         calls = [call(user_url,
                       data=json.dumps(user_contrib_correct),
