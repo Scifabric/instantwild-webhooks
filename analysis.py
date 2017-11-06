@@ -38,6 +38,9 @@ RARE_FINDS = ['Endangered', 'Critically Endangered']
 REST = ['Extinct', 'Extinct in the wild', 'Vulnerable', 'Near Threatened',
         'Least Concern', 'Data deficient', 'Not evaluated']
 
+enki.pbclient.set('api_key', settings.api_key)
+enki.pbclient.set('endpoint', settings.endpoint) 
+
 def give_badges(e, t, answers, result):
     topSpeciesScientific = [x['speciesScientificName'] for x in answers]
     for tr in e.task_runs[t.id]:
@@ -201,7 +204,7 @@ def basic(**kwargs):
                             a['imageURL'] = t.info.get('image', None)
                             a['deploymentID'] = t.info.get('deploymentID', None)
                         result = enki.pbclient.find_results(project_id=kwargs['project_id'],
-                                                            id=kwargs['result_id'])[0]
+                                                            id=kwargs['result_id'],all=1)[0]
                         if len(answers) == 1:
                             result.info = answers[0]
                         if len(answers) >= 2:
