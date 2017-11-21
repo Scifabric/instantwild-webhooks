@@ -203,6 +203,8 @@ def basic(**kwargs):
                             a['iucn_red_list_status'] = iucn_red_list_status
                             a['imageURL'] = t.info.get('image', None)
                             a['deploymentID'] = t.info.get('deploymentID', None)
+                            a['deploymentLocationID'] = t.info.get('deploymentLocationID', None)
+                            a['Create_time'] = t.info.get('Create_time')
                         result = enki.pbclient.find_results(project_id=kwargs['project_id'],
                                                             id=kwargs['result_id'],all=1)[0]
                         if len(answers) == 1:
