@@ -72,7 +72,7 @@ class TestApp(Test):
         tr.project_id=1
         tr.user_id=user_id
         tr.user_ip=user_ip
-        tr.info = dict(answer=[{'animalCount': 1,
+        tr.info = dict(answer=[{'animalCount': 1.0,
                                'speciesScientificName': 'lore',
                                'speciesCommonName': 'common',
                                'speciesID': 1}])
@@ -289,7 +289,8 @@ class TestApp(Test):
     @patch('enki.Enki', autospec=True)
     def test_basic_10_animal(self, enki_mock, pbclient, requests_mock):
         """Test 10 animal."""
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict())
         mock_response = self._mock_response(json_data=info, status=200)
         mock_response_2 = self._mock_response(json_data=user_info, status=200)
@@ -382,7 +383,8 @@ class TestApp(Test):
     def test_basic_10_animal_consensus(self, enki_mock, pbclient,
                                        requests_mock):
         """Test 10 animal consensus."""
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species="common"))]
         user_info = dict(info=dict())
         user_info_wrong = dict(info=dict())
         mock_response = self._mock_response(json_data=info, status=200)
@@ -403,7 +405,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         Create_time='time',
+                         deploymentLocationID='deploymentLocationID')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -432,7 +436,9 @@ class TestApp(Test):
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['Create_time'] = 'time'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        # del answer['speciesCommonName']
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -442,9 +448,11 @@ class TestApp(Test):
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2),
                                                 call(user_url3)], requests_mock.get.mock_calls
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
+        print result.info.values()
+        print answer.values()
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=1,
@@ -469,7 +477,8 @@ class TestApp(Test):
     def test_basic_10_animal_consensus_karma(self, enki_mock, pbclient,
                                        requests_mock):
         """Test 10 animal consensus test karma."""
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict(karma=2))
         user_info_wrong = dict(info=dict(karma=2))
         mock_response = self._mock_response(json_data=info, status=200)
@@ -489,7 +498,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         deploymentLocationID='deploymentLocationID',
+                         Create_time='time')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -515,7 +526,9 @@ class TestApp(Test):
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['speciesCommonName'] = 'common'
+        answer['Create_time'] = 'time'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -523,9 +536,11 @@ class TestApp(Test):
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2)]
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
+        print answer.keys()
+        print result.info.keys()
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
@@ -550,7 +565,8 @@ class TestApp(Test):
     def test_basic_10_animal_consensus_karma_min(self, enki_mock, pbclient,
                                        requests_mock):
         """Test 10 animal consensus test karma min is always 0."""
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict(karma=2))
         user_info_wrong = dict(info={'karma': 0})
         mock_response = self._mock_response(json_data=info, status=200)
@@ -570,7 +586,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         Create_time='time',
+                         deploymentLocationID='deploymentLocationID')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -596,7 +614,9 @@ class TestApp(Test):
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['Create_time'] = 'time'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -604,7 +624,7 @@ class TestApp(Test):
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2)]
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1,project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
         assert result.info == answer, (result.info, answer)
@@ -631,7 +651,8 @@ class TestApp(Test):
     def test_basic_10_animal_consensus_badges_work(self, enki_mock, pbclient,
                                        requests_mock):
         """Test 10 animal consensus test badges work."""
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict(badges=[], karma=2))
         user_info_wrong = dict(info=dict(karma=-1))
         mock_response = self._mock_response(json_data=info, status=200)
@@ -651,7 +672,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         deploymentLocationID='deploymentLocationID',
+                         Create_time='time')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -676,8 +699,10 @@ class TestApp(Test):
         answer['animalCountMax'] = 1.0
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        answer['Create_time'] = 'time'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -685,7 +710,7 @@ class TestApp(Test):
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2)]
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
         assert result.info == answer, (result.info, answer)
@@ -715,7 +740,8 @@ class TestApp(Test):
         badge = dict(iucn_red_list_status='Endangered',
                      result_id=1,
                      number=1)
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict(badges=[badge], karma=2))
         user_info_wrong = dict(info=dict(karma=-1))
         mock_response = self._mock_response(json_data=info, status=200)
@@ -735,7 +761,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         deploymentLocationID='deploymentLocationID',
+                         Create_time='time')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -760,8 +788,10 @@ class TestApp(Test):
         answer['animalCountMax'] = 1.0
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        answer['Create_time'] = 'time'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -769,9 +799,11 @@ class TestApp(Test):
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2)]
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
+        print result.info.values()
+        print answer.values()
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
@@ -801,7 +833,8 @@ class TestApp(Test):
                       result_id=2,
                       number=2)
 
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict(badges=[badge2], karma=2))
         user_info_wrong = dict(info=dict(karma=-1))
         mock_response = self._mock_response(json_data=info, status=200)
@@ -821,7 +854,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         deploymentLocationID='deploymentLocationID',
+                         Create_time='time')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -846,8 +881,10 @@ class TestApp(Test):
         answer['animalCountMax'] = 1.0
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        answer['Create_time'] = 'time'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -855,9 +892,11 @@ class TestApp(Test):
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2)]
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
+        print result.info.values()
+        print answer.values()
         assert result.info == answer, (result.info, answer)
 
         user_contrib_correct = dict(info=dict(species_number=2, iucn_number=2, karma=3,
@@ -888,7 +927,8 @@ class TestApp(Test):
                       result_id=2,
                       number=2)
 
-        info = [dict(info=dict(iucn_red_list_status='Endangered'))]
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
         user_info = dict(info=dict(badges=[badge2], karma=2))
         user_info_wrong = dict(info=dict())
         mock_response = self._mock_response(json_data=info, status=200)
@@ -908,7 +948,9 @@ class TestApp(Test):
         task = MagicMock()
         task.id = 1
         task.n_answers = 11
-        task.info = dict(image='url', deploymentID='deploymentID')
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         deploymentLocationID='deploymentLocationID',
+                         Create_time='time')
         task.state = 'completed'
         enki_mock.tasks = [task]
         task_runs = []
@@ -933,8 +975,10 @@ class TestApp(Test):
         answer['animalCountMax'] = 1.0
         answer['iucn_red_list_status'] = 'Endangered'
         answer['deploymentID'] = 'deploymentID'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        answer['Create_time'] = 'time'
         answer['imageURL'] = 'url'
-        del answer['speciesCommonName']
+        answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
         hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
@@ -942,7 +986,7 @@ class TestApp(Test):
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
                                                 call(user_url2)]
-        enki_mock.pbclient.find_results.assert_called_with(project_id=1,
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
                                                            id=1)
         enki_mock.pbclient.update_result.assert_called_with(result)
         assert result.info == answer, (result.info, answer)
