@@ -123,7 +123,8 @@ def get_red_list_status(topSpeciesScientific):
         data = res.json()
         if len(data) > 0:
             iucn_red_list_status = data[0]['info']['iucn_red_list_status']
-    return iucn_red_list_status
+            species = data[0]['info']['species']
+    return iucn_red_list_status, species
 
 
 def get_count_nan(df):
@@ -199,7 +200,8 @@ def basic(**kwargs):
                             return msg
                     else:
                         for a in answers:
-                            iucn_red_list_status = get_red_list_status(a['speciesScientificName'])
+                            iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'])
+                            a['speciesCommonName'] = species
                             a['iucn_red_list_status'] = iucn_red_list_status
                             a['imageURL'] = t.info.get('image', None)
                             a['deploymentID'] = t.info.get('deploymentID', None)
