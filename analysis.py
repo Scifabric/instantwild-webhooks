@@ -39,7 +39,7 @@ REST = ['Extinct', 'Extinct in the wild', 'Vulnerable', 'Near Threatened',
         'Least Concern', 'Data deficient', 'Not evaluated']
 
 enki.pbclient.set('api_key', settings.api_key)
-enki.pbclient.set('endpoint', settings.endpoint) 
+enki.pbclient.set('endpoint', settings.endpoint)
 
 def give_badges(e, t, answers, result):
     topSpeciesScientific = [x['speciesScientificName'] for x in answers]
@@ -115,8 +115,8 @@ def give_badges(e, t, answers, result):
             time.sleep(0)
 
 
-def get_red_list_status(topSpeciesScientific):
-    hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + topSpeciesScientific.replace(" ", '%26') + '&fulltextsearch=1'
+def get_red_list_status(topSpeciesScientific, project_id):
+    hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=' + str(project_id) + '&info=scientific_name::' + topSpeciesScientific.replace(" ", '%26') + '&fulltextsearch=1'
     res = requests.get(hp_url)
     iucn_red_list_status = None
     if res.status_code == 200:
@@ -167,6 +167,7 @@ def basic(**kwargs):
                   'speciesCommonName', 'animalCount']
         for t in e.tasks:
             data = []
+            project_id = t.project_id
             for tr in e.task_runs[t.id]:
                 for datum in tr.info['answer']:
                    data.append(datum)
@@ -200,7 +201,7 @@ def basic(**kwargs):
                             return msg
                     else:
                         for a in answers:
-                            iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'])
+                            iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'], project_id)
                             a['speciesCommonName'] = species
                             a['iucn_red_list_status'] = iucn_red_list_status
                             a['imageURL'] = t.info.get('image', None)

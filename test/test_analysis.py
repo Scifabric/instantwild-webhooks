@@ -125,6 +125,7 @@ class TestApp(Test):
                               project_short_name='project')
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 5
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -147,6 +148,7 @@ class TestApp(Test):
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 5
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -171,6 +173,7 @@ class TestApp(Test):
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 6
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -195,6 +198,7 @@ class TestApp(Test):
                               project_short_name='project')
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 12
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -219,6 +223,7 @@ class TestApp(Test):
                               project_short_name='project')
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 10
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -243,6 +248,7 @@ class TestApp(Test):
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 12
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -268,8 +274,10 @@ class TestApp(Test):
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 12
         task.state = 'completed'
+        task.project_id = 1
         enki_mock.tasks = [task]
         task_runs = []
         task_runs.append(self.create_task_runs_animal())
@@ -309,6 +317,7 @@ class TestApp(Test):
 
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 10
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -335,6 +344,7 @@ class TestApp(Test):
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 24
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -361,6 +371,7 @@ class TestApp(Test):
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 25
         task.state = 'completed'
         enki_mock.tasks = [task]
@@ -404,6 +415,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          Create_time='time',
@@ -441,7 +453,7 @@ class TestApp(Test):
         # del answer['speciesCommonName']
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         user_url3 = settings.endpoint + '/api/user/%s?api_key=%s' % (3, settings.api_key)
@@ -497,6 +509,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          deploymentLocationID='deploymentLocationID',
@@ -531,7 +544,7 @@ class TestApp(Test):
         answer['deploymentLocationID'] = 'deploymentLocationID'
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -585,6 +598,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          Create_time='time',
@@ -619,7 +633,7 @@ class TestApp(Test):
         answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -671,6 +685,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          deploymentLocationID='deploymentLocationID',
@@ -705,7 +720,7 @@ class TestApp(Test):
         answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -760,6 +775,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          deploymentLocationID='deploymentLocationID',
@@ -794,7 +810,7 @@ class TestApp(Test):
         answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -853,6 +869,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          deploymentLocationID='deploymentLocationID',
@@ -887,7 +904,7 @@ class TestApp(Test):
         answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
@@ -947,6 +964,7 @@ class TestApp(Test):
         enki_mock.pbclient.find_results.return_value = [result]
         task = MagicMock()
         task.id = 1
+        task.project_id = 1
         task.n_answers = 11
         task.info = dict(image='url', deploymentID='deploymentID',
                          deploymentLocationID='deploymentLocationID',
@@ -981,7 +999,7 @@ class TestApp(Test):
         answer['speciesCommonName'] = 'common'
         del answer['speciesID']
 
-        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
         user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
         user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
         assert requests_mock.get.mock_calls == [call(hp_url), call(user_url),
