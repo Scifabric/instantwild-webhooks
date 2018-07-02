@@ -227,6 +227,7 @@ class TestApp(Test):
         task.n_answers = 10
         task.state = 'completed'
         enki_mock.tasks = [task]
+        pbclient.update_result.return_value = '10 taskruns reported no animal'
         enki_mock.pbclient = pbclient
         task_runs = []
         for i in range(10):
@@ -245,6 +246,7 @@ class TestApp(Test):
         enki_mock = enki.Enki(endpoint='server',
                               api_key='api',
                               project_short_name='project')
+        pbclient.update_result.return_value = '10 taskruns reported no animal'
         enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
@@ -341,12 +343,14 @@ class TestApp(Test):
         enki_mock = enki.Enki(endpoint='server',
                               api_key='api',
                               project_short_name='project')
-        enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
         task.project_id = 1
         task.n_answers = 24
         task.state = 'completed'
+
+        pbclient.find_tasks.return_value = [task]
+        enki_mock.pbclient = pbclient
         enki_mock.tasks = [task]
         task_runs = []
         for i in range(9):
