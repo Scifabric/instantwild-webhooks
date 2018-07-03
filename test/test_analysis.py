@@ -142,7 +142,19 @@ class TestApp(Test):
         task.state = 'completed'
         enki_mock.tasks = [task]
         result = MagicMock
-        pbclient.update_result.return_value = 'The five taskruns reported no animal'
+        result.id = 1
+        result.task_id = 1
+        result.project_id = 1
+        updated_result = MagicMock
+        updated_result.info = dict(
+            speciesCommonName=settings.no_animal,
+            iucn_red_list_status=settings.no_animal,
+            imageURL=task.info.get('image', None),
+            deploymentID=task.info.get('deploymentID', None),
+            deploymentLocationID=task.info.get('deploymentLocationID', None),
+            Create_time=task.info.get('Create_time'))
+        pbclient.find_results.return_value = [result]
+        pbclient.update_result.return_value = updated_result
         enki_mock.pbclient = pbclient
         task_runs = []
         for i in range(5):
@@ -150,7 +162,8 @@ class TestApp(Test):
         enki_mock.task_runs = dict([(task.id,task_runs)])
 
         res = basic(**self.payload)
-        assert res == 'The five taskruns reported no animal', res
+        assert res.info['iucn_red_list_status'] == settings.no_animal
+        assert res.info['speciesCommonName'] == settings.no_animal
 
     @patch('enki.pbclient', autospec=True)
     @patch('enki.Enki', autospec=True)
@@ -243,7 +256,21 @@ class TestApp(Test):
         task.n_answers = 10
         task.state = 'completed'
         enki_mock.tasks = [task]
-        pbclient.update_result.return_value = '10 taskruns reported no animal'
+        result = MagicMock
+        result.id = 1
+        result.task_id = 1
+        result.project_id = 1
+        updated_result = MagicMock
+        updated_result.info = dict(
+            speciesCommonName=settings.no_animal,
+            iucn_red_list_status=settings.no_animal,
+            imageURL=task.info.get('image', None),
+            deploymentID=task.info.get('deploymentID', None),
+            deploymentLocationID=task.info.get('deploymentLocationID', None),
+            Create_time=task.info.get('Create_time'))
+        pbclient.find_results.return_value = [result]
+        pbclient.update_result.return_value = updated_result
+        # pbclient.update_result.return_value = '10 taskruns reported no animal'
         enki_mock.pbclient = pbclient
         task_runs = []
         for i in range(10):
@@ -252,7 +279,8 @@ class TestApp(Test):
 
         res = basic(**self.payload)
         assert task.n_answers == 10, task.n_answers
-        assert res == "10 taskruns reported no animal", res
+        assert res.info['iucn_red_list_status'] == settings.no_animal
+        assert res.info['speciesCommonName'] == settings.no_animal
 
 
     @patch('enki.pbclient', autospec=True)
@@ -262,13 +290,28 @@ class TestApp(Test):
         enki_mock = enki.Enki(endpoint='server',
                               api_key='api',
                               project_short_name='project')
-        pbclient.update_result.return_value = '10 taskruns reported no animal'
-        enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
         task.project_id = 1
         task.n_answers = 12
         task.state = 'completed'
+
+        result = MagicMock
+        result.id = 1
+        result.task_id = 1
+        result.project_id = 1
+        updated_result = MagicMock
+        updated_result.info = dict(
+            speciesCommonName=settings.no_animal,
+            iucn_red_list_status=settings.no_animal,
+            imageURL=task.info.get('image', None),
+            deploymentID=task.info.get('deploymentID', None),
+            deploymentLocationID=task.info.get('deploymentLocationID', None),
+            Create_time=task.info.get('Create_time'))
+        pbclient.find_results.return_value = [result]
+        pbclient.update_result.return_value = updated_result
+        # pbclient.update_result.return_value = '10 taskruns reported no animal'
+        enki_mock.pbclient = pbclient
         enki_mock.tasks = [task]
         task_runs = []
         task_runs.append(self.create_task_runs_animal())
@@ -280,7 +323,9 @@ class TestApp(Test):
         res = basic(**self.payload)
         assert task.n_answers == 12, task.n_answers
         assert task.state == 'completed', task.state
-        assert res == "10 taskruns reported no animal", res
+        assert res.info['iucn_red_list_status'] == settings.no_animal
+        assert res.info['speciesCommonName'] == settings.no_animal
+
 
     @patch('enki.pbclient', autospec=True)
     @patch('enki.Enki', autospec=True)
