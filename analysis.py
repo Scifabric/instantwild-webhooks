@@ -19,9 +19,9 @@
 import enki
 import json
 import pbclient
-try: # pragma: no cover
+try:  # pragma: no cover
     import settings
-except ImportError:
+except ImportError:  # pragma: no cover
     import settings_testing as settings
 
 import requests
@@ -146,6 +146,7 @@ def get_red_list_status(topSpeciesScientific, project_id):
     iucn_red_list_status = None
     if res.status_code == 200:
         data = res.json()
+        print data
         if len(data) > 0:
             iucn_red_list_status = data[0]['info']['iucn_red_list_status']
             species = data[0]['info']['species']

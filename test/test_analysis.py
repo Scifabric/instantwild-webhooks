@@ -24,7 +24,7 @@ This exports:
 """
 try:
     import settings
-except ImportError:
+except ImportError:  # pragma: no cover
     import settings_testing as settings
 import json
 import enki
@@ -65,17 +65,29 @@ class TestApp(Test):
                 )
             return mock_resp
 
-    def create_task_runs_animal(self, user_id=1, user_ip=None):
+    def create_task_runs_animal(self, user_id=1, user_ip=None,
+                                two_answers=False):
         """Create task runs."""
         tr = MagicMock()
-        tr.task_id=1
-        tr.project_id=1
-        tr.user_id=user_id
-        tr.user_ip=user_ip
-        tr.info = dict(answer=[{'animalCount': 1.0,
-                               'speciesScientificName': 'lore',
-                               'speciesCommonName': 'common',
-                               'speciesID': 1}])
+        tr.task_id = 1
+        tr.project_id = 1
+        tr.user_id = user_id
+        tr.user_ip = user_ip
+        if two_answers:
+            tr.info = dict(answer=[{'animalCount': 1.0,
+                                   'speciesScientificName': 'lore',
+                                   'speciesCommonName': 'common',
+                                   'speciesID': 1},
+                                   {'animalCount': 1.0,
+                                   'speciesScientificName': 'ipsum',
+                                   'speciesCommonName': 'common',
+                                   'speciesID': 2}
+                                   ])
+        else:
+            tr.info = dict(answer=[{'animalCount': 1.0,
+                                   'speciesScientificName': 'lore',
+                                   'speciesCommonName': 'common',
+                                   'speciesID': 1}])
         return tr
 
     def create_task_runs_animal_wrong(self):
@@ -673,6 +685,112 @@ class TestApp(Test):
                       headers={'content-type': 'application/json'})]
 
         requests_mock.put.assert_has_calls(calls)
+
+    @patch('analysis.requests', autospec=True)
+    @patch('enki.pbclient', autospec=True)
+    @patch('enki.Enki', autospec=True)
+    def test_basic_10_animal_consensus_two_badges_work(self, enki_mock, pbclient,
+                                       requests_mock):
+        """Test 10 animal consensus test badges work with two animals."""
+        info = [dict(info=dict(iucn_red_list_status='Endangered',
+                               species='common'))]
+        user_info = dict(info=dict(badges=[], karma=2))
+        user_info_wrong = dict(info=dict(karma=-1))
+        mock_response = self._mock_response(json_data=info, status=200)
+        mock_response_2 = self._mock_response(json_data=user_info, status=200)
+        mock_response_3 = self._mock_response(json_data=user_info_wrong, status=200)
+        requests_mock.get.side_effect = [mock_response, mock_response, mock_response_2,
+                                         mock_response_3]
+
+        enki_mock = enki.Enki(endpoint='server',
+                              api_key='api',
+                              project_short_name='project')
+        enki_mock.pbclient = pbclient
+        result = MagicMock()
+        result.id = 1
+        result.info = dict()
+        enki_mock.pbclient.find_results.return_value = [result]
+        task = MagicMock()
+        task.id = 1
+        task.project_id = 1
+        task.n_answers = 11
+        task.info = dict(image='url', deploymentID='deploymentID',
+                         deploymentLocationID='deploymentLocationID',
+                         Create_time='time')
+        task.state = 'completed'
+        enki_mock.tasks = [task]
+        task_runs = []
+        for i in range(10):
+            if (i==1):
+                task_runs.append(self.create_task_runs_animal(user_id=1,
+                                                              two_answers=True))
+            else:
+                task_runs.append(self.create_task_runs_animal(user_id=None, user_ip='127.0.0.%s'
+                                                              % i,
+                                                              two_answers=True))
+        for i in range(1):
+            task_runs.append(self.create_task_runs_animal_wrong())
+
+        enki_mock.task_runs = dict([(task.id,task_runs)])
+
+        res = basic(**self.payload)
+        assert task.n_answers == 11, task.n_answers
+        assert task.state == 'completed', task.state
+
+        answer = self.create_task_runs_animal(two_answers=True).info['answer'][0]
+        answer['animalCountStd'] = 0.0
+        answer['animalCountMin'] = 1.0
+        answer['animalCountMax'] = 1.0
+        answer['iucn_red_list_status'] = 'Endangered'
+        answer['deploymentID'] = 'deploymentID'
+        answer['deploymentLocationID'] = 'deploymentLocationID'
+        answer['Create_time'] = 'time'
+        answer['imageURL'] = 'url'
+        answer['speciesCommonName'] = 'common'
+        del answer['speciesID']
+
+        answer2 = self.create_task_runs_animal(two_answers=True).info['answer'][1]
+        answer2['animalCountStd'] = 0.0
+        answer2['animalCountMin'] = 1.0
+        answer2['animalCountMax'] = 1.0
+        answer2['iucn_red_list_status'] = 'Endangered'
+        answer2['deploymentID'] = 'deploymentID'
+        answer2['deploymentLocationID'] = 'deploymentLocationID'
+        answer2['Create_time'] = 'time'
+        answer2['imageURL'] = 'url'
+        answer2['speciesCommonName'] = 'common'
+        del answer2['speciesID']
+
+
+        hp_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::' + answer['speciesScientificName'].replace(" ", '%26') + '&fulltextsearch=1'
+        hp2_url = settings.endpoint + '/api/helpingmaterial?all=1&project_id=1&info=scientific_name::ipsum&fulltextsearch=1'
+        user_url = settings.endpoint + '/api/user/%s?api_key=%s' % (1, settings.api_key)
+        user_url2 = settings.endpoint + '/api/user/%s?api_key=%s' % (2, settings.api_key)
+        calls = [call(hp2_url), call(hp_url), call(user_url),  call(user_url2)]
+        assert requests_mock.get.mock_calls == calls, (requests_mock.get.mock_calls, calls)
+        enki_mock.pbclient.find_results.assert_called_with(all=1, project_id=1,
+                                                           id=1)
+        enki_mock.pbclient.update_result.assert_called_with(result)
+        assert len(result.info['answers']) == 2
+        assert result.info['answers'][0] == answer2, (result.info, answer2)
+        assert result.info['answers'][1] == answer, (result.info, answer)
+
+        user_contrib_correct = dict(info=dict(species_number=1, iucn_number=1, karma=3,
+                                    badges=[dict(iucn_red_list_status='Endangered',
+                                                            result_id=1,
+                                                            number=1)]))
+        user_contrib_wrong = dict(info=dict(species_number=0, iucn_number=0, karma=0,
+                                  badges=[]))
+
+        calls = [call(user_url,
+                      data=json.dumps(user_contrib_correct),
+                      headers={'content-type': 'application/json'}),
+                call(user_url2,
+                      data=json.dumps(user_contrib_wrong),
+                      headers={'content-type': 'application/json'})]
+
+        requests_mock.put.assert_has_calls(calls)
+
 
     @patch('analysis.requests', autospec=True)
     @patch('enki.pbclient', autospec=True)
