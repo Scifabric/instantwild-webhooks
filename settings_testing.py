@@ -6,3 +6,7 @@ endpoint = 'http://localhost:5001'
 enable_background_jobs = True
 # Queue name: use your own name in case you're using also python-rq
 queue_name = 'mywebhooks'
+# String for no animal
+no_animal = 'no animal'
+# String for no consensus
+no_consensus = 'no consensus'

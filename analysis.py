@@ -207,7 +207,10 @@ def basic(**kwargs):
                 msg = "The five taskruns reported no animal"
                 if type(vc) == pd.Series and ((str(vc.index[0]) == 'nan' or
                                               vc.index[0] == -1) and vc.values[0] == 5):
-                    return msg
+                    result = enki.pbclient.find_results(project_id=kwargs['project_id'],
+                                                        id=kwargs['result_id'],all=1)[0]
+
+                    return create_result(t, settings.no_animal, result)
                 else:
                     task = get_task(t.project_id, t.id)
                     task.n_answers += 1
@@ -219,7 +222,7 @@ def basic(**kwargs):
                     result = enki.pbclient.find_results(project_id=kwargs['project_id'],
                                                         id=kwargs['result_id'],all=1)[0]
 
-                    return create_result(t, 'no animal', result)
+                    return create_result(t, settings.no_animal, result)
                 else:
                     answers = get_consensus(df, th=10)
                     if len(answers) == 0:
@@ -229,6 +232,11 @@ def basic(**kwargs):
                             task.n_answers += 1
                             task.state = 'ongoing'
                             return enki.pbclient.update_task(task)
+                        else:
+                            result = enki.pbclient.find_results(project_id=kwargs['project_id'],
+                                                                id=kwargs['result_id'],all=1)[0]
+
+                            return create_result(t, settings.no_consensus, result)
                     else:
                         for a in answers:
                             iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'], project_id)

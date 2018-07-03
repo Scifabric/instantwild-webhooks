@@ -141,6 +141,8 @@ class TestApp(Test):
         task.n_answers = 5
         task.state = 'completed'
         enki_mock.tasks = [task]
+        result = MagicMock
+        pbclient.update_result.return_value = 'The five taskruns reported no animal'
         enki_mock.pbclient = pbclient
         task_runs = []
         for i in range(5):
