@@ -145,12 +145,13 @@ class TestApp(Test):
         enki_mock = enki.Enki(endpoint='server',
                               api_key='api',
                               project_short_name='project')
-        enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
         task.project_id = 1
         task.n_answers = 5
         task.state = 'completed'
+        pbclient.find_tasks.return_value = [task]
+        enki_mock.pbclient = pbclient
         enki_mock.tasks = [task]
         task_runs = []
         for i in range(4):
@@ -170,12 +171,13 @@ class TestApp(Test):
         enki_mock = enki.Enki(endpoint='server',
                               api_key='api',
                               project_short_name='project')
-        enki_mock.pbclient = pbclient
         task = MagicMock()
         task.id = 1
         task.project_id = 1
         task.n_answers = 6
         task.state = 'completed'
+        pbclient.find_tasks.return_value = [task]
+        enki_mock.pbclient = pbclient
         enki_mock.tasks = [task]
         task_runs = []
         for i in range(4):
@@ -280,7 +282,15 @@ class TestApp(Test):
         task.n_answers = 12
         task.state = 'completed'
         task.project_id = 1
+        updated_task = MagicMock()
+        updated_task.id = 1
+        updated_task.project_id = 1
+        updated_task.n_answers = 13
+        updated_task.state = 'ongoing'
+        updated_task.project_id = 1
         enki_mock.tasks = [task]
+        enki_mock.pbclient.find_tasks.return_value = [task]
+        enki_mock.pbclient.update_task.return_value = task
         task_runs = []
         task_runs.append(self.create_task_runs_animal())
         task_runs.append(self.create_task_runs_animal())
@@ -292,7 +302,8 @@ class TestApp(Test):
         res = basic(**self.payload)
         assert task.n_answers == 13, task.n_answers
         assert task.state == 'ongoing', task.state
-        assert res == "No consensus. Asking for one more answer.", res
+        #assert res == "No consensus. Asking for one more answer.", res
+        assert res.n_answers == 13
 
     @patch('analysis.requests', autospec=True)
     @patch('enki.pbclient', autospec=True)
