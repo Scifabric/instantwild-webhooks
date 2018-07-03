@@ -29,7 +29,7 @@ except ImportError:
 import json
 import enki
 from base import Test
-from analysis import basic
+from analysis import basic, get_task
 from mock import patch, Mock, MagicMock, call
 import mock
 
@@ -1037,3 +1037,13 @@ class TestApp(Test):
                       headers={'content-type': 'application/json'})]
 
         requests_mock.put.assert_has_calls(calls)
+
+    @patch('enki.pbclient', autospec=True)
+    def test_get_task(self, pbclient):
+        """Test get_task works."""
+        pbclient.find_tasks.return_value = [1]
+        res = get_task(1, 1)
+        assert res == 1, res
+        pbclient.find_tasks.return_value = []
+        res = get_task(1, 1)
+        assert len(res) == 0

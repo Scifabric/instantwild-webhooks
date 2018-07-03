@@ -212,7 +212,6 @@ def basic(**kwargs):
                     task.n_answers += 1
                     task.state = 'ongoing'
                     return enki.pbclient.update_task(task)
-                return msg
             else:
                 if (str(vc.index[0]) == 'nan' or vc.index[0] == -1) and vc.values[0] >= 10:
                     msg = "10 taskruns reported no animal"
