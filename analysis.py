@@ -46,6 +46,7 @@ enki.pbclient.set('endpoint', settings.endpoint)
 def get_task(project_id, task_id):
     """Return task."""
     task = enki.pbclient.find_tasks(project_id, id=task_id, all=1)
+    print task
     if len(task) > 0:
         return task[0]
     else:
@@ -210,7 +211,7 @@ def basic(**kwargs):
                     task = get_task(t.project_id, t.id)
                     task.n_answers += 1
                     task.state = 'ongoing'
-                    return pbclient.update_task(task)
+                    return enki.pbclient.update_task(task)
                 return msg
             else:
                 if (str(vc.index[0]) == 'nan' or vc.index[0] == -1) and vc.values[0] >= 10:
@@ -227,7 +228,7 @@ def basic(**kwargs):
                             task = get_task(t.project_id, t.id)
                             task.n_answers += 1
                             task.state = 'ongoing'
-                            return pbclient.update_task(task)
+                            return enki.pbclient.update_task(task)
                     else:
                         for a in answers:
                             iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'], project_id)
