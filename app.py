@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with PyBossa. If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response, abort
+from flask import jsonify
 from analysis import basic
 from redis import Redis
 from rq import Queue
@@ -38,7 +39,10 @@ def index():
             q = Queue(settings.queue_name, connection=Redis())
             q.enqueue(basic, **request.json)
         else:
-            basic(**request.json)
+            res = basic(**request.json)
+            if (type(res) == dict and res['status'] == "failed"):
+                return make_response(jsonify(res),
+                                     int(res['status_code']))
         return "OK"
 
 if __name__ == "__main__": # pragma: no cover

@@ -18,9 +18,10 @@
 
 import enki
 import json
-try: # pragma: no cover
+import pbclient
+try:  # pragma: no cover
     import settings
-except ImportError:
+except ImportError:  # pragma: no cover
     import settings_testing as settings
 
 import requests
@@ -40,6 +41,30 @@ REST = ['Extinct', 'Extinct in the wild', 'Vulnerable', 'Near Threatened',
 
 enki.pbclient.set('api_key', settings.api_key)
 enki.pbclient.set('endpoint', settings.endpoint)
+
+
+def get_task(project_id, task_id):
+    """Return task."""
+    task = enki.pbclient.find_tasks(project_id, id=task_id, all=1)
+    print task
+    if len(task) > 0:
+        return task[0]
+    else:
+        return []
+
+
+def create_result(t, value, result):
+    tmp = dict(
+        speciesCommonName=value,
+        iucn_red_list_status=value,
+        imageURL=t.info.get('image', None),
+        deploymentID=t.info.get('deploymentID', None),
+        deploymentLocationID=t.info.get('deploymentLocationID', None),
+        Create_time=t.info.get('Create_time')
+    )
+    result.info = tmp
+    return enki.pbclient.update_result(result)
+
 
 def give_badges(e, t, answers, result):
     topSpeciesScientific = [x['speciesScientificName'] for x in answers]
@@ -121,6 +146,7 @@ def get_red_list_status(topSpeciesScientific, project_id):
     iucn_red_list_status = None
     if res.status_code == 200:
         data = res.json()
+        print data
         if len(data) > 0:
             iucn_red_list_status = data[0]['info']['iucn_red_list_status']
             species = data[0]['info']['species']
@@ -175,30 +201,34 @@ def basic(**kwargs):
             # If 5 first answers is nan (nothing here) mark task
             # as completed
             vc = get_count_nan(df)
+            print vc.index[0]
+            print vc.values[0]
             if len(e.task_runs[t.id]) == 5:
                 msg = "The five taskruns reported no animal"
                 if type(vc) == pd.Series and ((str(vc.index[0]) == 'nan' or
-                                              vc.index[0] ==-1) and vc.values[0] == 5):
+                                              vc.index[0] == -1) and vc.values[0] == 5):
                     return msg
                 else:
-                    t.n_answers += 1
-                    t.state = 'ongoing'
-                    enki.pbclient.update_task(t)
-                return msg
+                    task = get_task(t.project_id, t.id)
+                    task.n_answers += 1
+                    task.state = 'ongoing'
+                    return enki.pbclient.update_task(task)
             else:
-                print vc.index[0]
                 if (str(vc.index[0]) == 'nan' or vc.index[0] == -1) and vc.values[0] >= 10:
                     msg = "10 taskruns reported no animal"
-                    return msg
+                    result = enki.pbclient.find_results(project_id=kwargs['project_id'],
+                                                        id=kwargs['result_id'],all=1)[0]
+
+                    return create_result(t, 'no animal', result)
                 else:
                     answers = get_consensus(df, th=10)
                     if len(answers) == 0:
                         if len(e.task_runs[t.id]) < 25:
                             msg = "No consensus. Asking for one more answer."
-                            t.n_answers += 1
-                            t.state = 'ongoing'
-                            enki.pbclient.update_task(t)
-                            return msg
+                            task = get_task(t.project_id, t.id)
+                            task.n_answers += 1
+                            task.state = 'ongoing'
+                            return enki.pbclient.update_task(task)
                     else:
                         for a in answers:
                             iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'], project_id)
