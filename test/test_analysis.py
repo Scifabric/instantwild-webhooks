@@ -270,7 +270,6 @@ class TestApp(Test):
             Create_time=task.info.get('Create_time'))
         pbclient.find_results.return_value = [result]
         pbclient.update_result.return_value = updated_result
-        # pbclient.update_result.return_value = '10 taskruns reported no animal'
         enki_mock.pbclient = pbclient
         task_runs = []
         for i in range(10):
@@ -310,7 +309,6 @@ class TestApp(Test):
             Create_time=task.info.get('Create_time'))
         pbclient.find_results.return_value = [result]
         pbclient.update_result.return_value = updated_result
-        # pbclient.update_result.return_value = '10 taskruns reported no animal'
         enki_mock.pbclient = pbclient
         enki_mock.tasks = [task]
         task_runs = []
