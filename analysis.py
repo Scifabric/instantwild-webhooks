@@ -56,6 +56,7 @@ def get_task(project_id, task_id):
 def create_result(t, value, result):
     tmp = dict(
         speciesCommonName=value,
+        speciesScientificName=value,
         iucn_red_list_status=value,
         imageURL=t.info.get('image', None),
         deploymentID=t.info.get('deploymentID', None),
