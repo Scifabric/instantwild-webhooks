@@ -208,9 +208,9 @@ def basic(**kwargs):
                 if type(vc) == pd.Series and ((str(vc.index[0]) == 'nan' or
                                               vc.index[0] == -1) and vc.values[0] == 5):
                     result = enki.pbclient.find_results(project_id=kwargs['project_id'],
-                                                        id=kwargs['result_id'],all=1)[0]
-
-                    return create_result(t, settings.no_animal, result)
+                                                        id=kwargs['result_id'],all=1)
+                    if len(result) > 0:
+                        return create_result(t, settings.no_animal, result[0])
                 else:
                     task = get_task(t.project_id, t.id)
                     task.n_answers += 1
@@ -220,9 +220,9 @@ def basic(**kwargs):
                 if (str(vc.index[0]) == 'nan' or vc.index[0] == -1) and vc.values[0] >= 10:
                     msg = "10 taskruns reported no animal"
                     result = enki.pbclient.find_results(project_id=kwargs['project_id'],
-                                                        id=kwargs['result_id'],all=1)[0]
-
-                    return create_result(t, settings.no_animal, result)
+                                                        id=kwargs['result_id'],all=1)
+                    if len(result) > 0:
+                        return create_result(t, settings.no_animal, result[0])
                 else:
                     answers = get_consensus(df, th=10)
                     if len(answers) == 0:
@@ -234,9 +234,10 @@ def basic(**kwargs):
                             return enki.pbclient.update_task(task)
                         else:
                             result = enki.pbclient.find_results(project_id=kwargs['project_id'],
-                                                                id=kwargs['result_id'],all=1)[0]
-
-                            return create_result(t, settings.no_consensus, result)
+                                                                id=kwargs['result_id'],all=1)
+                            if len(result) > 0:
+                                return create_result(t, settings.no_consensus,
+                                                     result[0])
                     else:
                         for a in answers:
                             iucn_red_list_status, species = get_red_list_status(a['speciesScientificName'], project_id)
@@ -247,12 +248,14 @@ def basic(**kwargs):
                             a['deploymentLocationID'] = t.info.get('deploymentLocationID', None)
                             a['Create_time'] = t.info.get('Create_time')
                         result = enki.pbclient.find_results(project_id=kwargs['project_id'],
-                                                            id=kwargs['result_id'],all=1)[0]
-                        if len(answers) == 1:
-                            result.info = answers[0]
-                        if len(answers) >= 2:
-                            result.info = dict(answers=answers)
-                        give_badges(e, t, answers, result)
-                        result = enki.pbclient.update_result(result)
-                        return 'OK'
+                                                            id=kwargs['result_id'],all=1)
+                        if len(result) > 0:
+                            result = result[0]
+                            if len(answers) == 1:
+                                result.info = answers[0]
+                            if len(answers) >= 2:
+                                result.info = dict(answers=answers)
+                            give_badges(e, t, answers, result)
+                            result = enki.pbclient.update_result(result)
+                            return 'OK'
     return "OK"
