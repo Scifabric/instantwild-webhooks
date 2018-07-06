@@ -72,7 +72,8 @@ def give_badges(e, t, answers, result):
     for tr in e.task_runs[t.id]:
         if tr.user_id:
             if (len(tr.info['answer']) == 1 and
-               tr.info['answer'][0]['animalCount'] == -1):
+               tr.info['answer'][0]['animalCount'] == -1 or
+ 	       tr.info['answer'][0]['animalCount'] == 0):
                 user_answer = []
             else:
                 user_answer = list(filter(lambda x: x['speciesScientificName']
@@ -207,7 +208,7 @@ def basic(**kwargs):
             if len(e.task_runs[t.id]) == 5:
                 msg = "The five taskruns reported no animal"
                 if type(vc) == pd.Series and ((str(vc.index[0]) == 'nan' or
-                                              vc.index[0] == -1) and vc.values[0] == 5):
+                                              vc.index[0] == -1 or vc.index[0] == 0) and vc.values[0] == 5):
                     result = enki.pbclient.find_results(project_id=kwargs['project_id'],
                                                         id=kwargs['result_id'],all=1)
                     if len(result) > 0:
@@ -218,7 +219,7 @@ def basic(**kwargs):
                     task.state = 'ongoing'
                     return enki.pbclient.update_task(task)
             else:
-                if (str(vc.index[0]) == 'nan' or vc.index[0] == -1) and vc.values[0] >= 10:
+                if (str(vc.index[0]) == 'nan' or vc.index[0] == -1 or vc.index[0] == 0) and (vc.values[0] >= 10 or vc.values[0] == len(e.task_runs[t.id])) :
                     msg = "10 taskruns reported no animal"
                     result = enki.pbclient.find_results(project_id=kwargs['project_id'],
                                                         id=kwargs['result_id'],all=1)
